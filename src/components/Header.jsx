@@ -1,16 +1,26 @@
 import { Link, useNavigate } from 'react-router-dom';
 import logo from "../assets/logo.png"
+import { useEffect, useState } from 'react';
+import { useDispatch } from 'react-redux';
+import { logout } from '../redux/UserSlice';
 
 function Header() {
+  const [token, setToken] = useState("")
   const navigate = useNavigate();
+  const dispatch = useDispatch()
 
   const handleLogout = () => {
-    // logout();
+    dispatch(logout())
     navigate('/login');
   };
 
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    setToken(token);
+  }, [])
+
   return (
-    <header className="bg-dark shadow w-100 position-fixed start-0 top-0">
+    <header className="bg-dark shadow w-100 position-fixed start-0 top-0" style={{ zIndex: '9999' }}>
       <div className="container">
         <div className="d-flex justify-content-between align-items-center py-2">
           {/* Logo/Brand */}
@@ -27,16 +37,16 @@ function Header() {
               Add Post
             </Link>
             <Link
-              to="/showpost"
+              to="/"
               className="btn btn-success"
             >
               Show Posts
             </Link>
             <button
               onClick={handleLogout}
-              className="btn btn-danger"
+              className={`${token ? 'btn-danger' : 'btn-primary'} btn`}
             >
-              Logout
+              {token ? "Logout" : "Login"}
             </button>
           </div>
         </div>
