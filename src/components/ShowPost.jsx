@@ -1,17 +1,25 @@
 import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchPosts } from '../redux/PostSlice';
+import { fetchPosts, deletePostThunk } from '../redux/PostSlice';
 
 function ShowPost() {
     const dispatch = useDispatch();
     const posts = useSelector((state) => state.posts.posts);
     const status = useSelector((state) => state.posts.status);
     const error = useSelector((state) => state.posts.error);
-    console.log(posts);
+    // console.log(posts);
 
     useEffect(() => {
         dispatch(fetchPosts());
     }, [dispatch]);
+
+    const handleDelete = (postId) => {
+        if (window.confirm('Are you sure you want to delete this post?')) {
+            console.log(postId);
+            
+            dispatch(deletePostThunk(postId));
+        }
+    };
 
     if (status === 'loading') {
         return (
@@ -32,27 +40,34 @@ function ShowPost() {
     }
 
     return (
-        <div className="container py-4">
-            <div className="row">
+        <div className="container py-5">
+            <div className="row g-4">
                 {posts.map((post) => (
-                    <div className="col-md-4 mb-4" key={post.id}>
-                        <div className="card h-100 bg-dark text-white">
-                            <img
-                                src={post.image || "https://placeholder.com/800x400"}
-                                className="card-img-top"
-                                alt="Post thumbnail"
-                                style={{ height: '200px', objectFit: 'cover' }}
-                            />
-                            <div className="card-body">
-                                <span className="badge bg-primary mb-2">{post.category}</span>
-                                <h5 className="card-title">{post.title}</h5>
-                                <p className="card-text">{post.description}</p>
-                                <div className="d-flex justify-content-between mt-3">
-                                    <button className="btn btn-primary btn-sm">
-                                        <i className="fas fa-edit me-1"></i>Edit
+                    <div className="col-md-4 mx-5" key={post.id}>
+                        <div className="card h-100 shadow-sm bg-dark text-white border-0 hover-effect" style={{ width: "400px" }}>
+                            <div className="position-relative">
+                                <img
+                                    src={post.image || "https://placeholder.com/800x400"}
+                                    className="card-img-top"
+                                    alt="Post thumbnail"
+                                    style={{ height: '220px', objectFit: 'cover' }}
+                                />
+                                <span className="badge bg-primary position-absolute top-0 end-0 m-3">
+                                    {post.category}
+                                </span>
+                            </div>
+                            <div className="card-body d-flex flex-column">
+                                <h5 className="card-title fw-bold mb-3">{post.title}</h5>
+                                <p className="card-text flex-grow-1">{post.content}</p>
+                                <div className="d-flex justify-content-between align-items-center mt-3">
+                                    <button className="btn btn-outline-primary btn-sm px-3">
+                                        <i className="fas fa-edit me-2"></i>Edit
                                     </button>
-                                    <button className="btn btn-danger btn-sm">
-                                        <i className="fas fa-trash-alt me-1"></i>Delete
+                                    <button
+                                        className="btn btn-outline-danger btn-sm px-3"
+                                        onClick={() => handleDelete(post.id)}
+                                    >
+                                        <i className="fas fa-trash-alt me-2"></i>Delete
                                     </button>
                                 </div>
                             </div>

@@ -13,46 +13,62 @@ const PostForm = () => {
     });
 
     const handleChange = (e) => {
-        const { id, value } = e.target;
-        setFormData(prevData => ({
-            ...prevData,
-            [id]: value
-        }));
+        const { id, value, files } = e.target;
+        
+        // Special handling for image files
+        if (id === 'image' && files.length > 0) {
+            const file = files[0];
+            const reader = new FileReader();
+            
+            reader.onloadend = () => {
+                setFormData(prevData => ({
+                    ...prevData,
+                    image: reader.result 
+                }));
+            };
+            
+            reader.readAsDataURL(file);
+        } else {
+            setFormData(prevData => ({
+                ...prevData,
+                [id]: value
+            }));
+        }
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        
+
+        const newPost = {
+            ...formData,
+            createdAt: new Date().toISOString(),
+            id: Date.now(), // Temporary ID
+        };
+
         try {
-            const newPost = {
-                ...formData,
-                createdAt: new Date().toISOString(),
-                id: Date.now() // temporary ID for demo purposes
-            };
-            
-            dispatch(createPost(newPost));
-            
-            // Reset form
-            setFormData({
-                title: '',
-                content: '',
-                image: '',
-                category: '',
-                createdAt: ''
-            });
-            
+            await dispatch(createPost(newPost)).unwrap(); // Wait for the async thunk to complete
             alert('Post created successfully!');
         } catch (error) {
             console.error('Error creating post:', error);
             alert('Failed to create post');
         }
+
+        // Reset form
+        setFormData({
+            title: '',
+            content: '',
+            image: '',
+            category: '',
+            createdAt: '',
+        });
     };
+
 
     return (
         <div className="container mt-5">
             <div className="row justify-content-center">
                 <div className="col-md-8">
-                    <div className="card bg-dark text-light" style={{width: '400px'}}>
+                    <div className="card bg-dark text-light" style={{ width: '400px' }}>
                         <div className="card-header bg-dark border-secondary">
                             <h4 className="mb-0">Create New Blog Post</h4>
                         </div>
@@ -87,7 +103,6 @@ const PostForm = () => {
                                         className="form-control bg-dark text-light border-secondary"
                                         id="image"
                                         accept="image/*"
-                                        value={formData.image}
                                         onChange={handleChange}
                                     />
                                 </div>
