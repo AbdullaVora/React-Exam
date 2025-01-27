@@ -18,10 +18,13 @@ const RegisterForm = () => {
             ...prevData,
             [id]: value,
         }));
+        console.log('Form data:', formData);
     };
 
     const handleSubmit = (e) => {
         e.preventDefault();
+        console.log('Form data:', formData);
+        
 
         if (formData.password !== formData.confirmPassword) {
             alert('Passwords do not match!');
